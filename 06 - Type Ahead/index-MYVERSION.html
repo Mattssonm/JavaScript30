@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Type Ahead 👀</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <form class="search-form">
+    <input type="text" class="search" placeholder="City or State">
+    <ul class="suggestions">
+      <li>Filter for a city</li>
+      <li>or a state</li>
+    </ul>
+  </form>
+<script>
+
+  //get data
+  const json = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+
+  fetch(json)
+    .then(
+      function(response) {
+        if (response.status !== 200) {
+          console.log("Error. Status Code: " + response.status)
+          return
+        }
+
+        response.json().then(data => {
+          const search = document.querySelector(".search")
+
+          search.addEventListener("input", (e) => {
+            const filteredArr = filterArr(data, e.target.value)
+            createLis(filteredArr)
+          } )
+        })
+      }
+    )
+    .catch(err => console.log("Fetch error", err))
+
+  function filterArr(arr, query) {
+    const newArr = arr.filter( item => {
+      return item.city.toLowerCase().includes(query) || item.state.toLowerCase().includes(query)
+    })
+    return newArr
+  }
+
+  function createLis(arr) {
+    const suggestions = document.querySelector(".suggestions")
+
+    //remove old li's
+    while (suggestions.firstChild) {
+      suggestions.removeChild(suggestions.firstChild)
+    }
+
+    //create new li's for each item in the array
+    arr.forEach(item => {
+      let li = document.createElement("li")
+      let span = document.createElement("span")
+
+      span.innerHTML = item.population
+      span.classList.add("population")
+
+      li.innerHTML = `${item.city}, ${item.state}`
+
+      li.appendChild(span)
+      suggestions.appendChild(li)
+    });
+  }
+
+</script>
+  </body>
+</html>
